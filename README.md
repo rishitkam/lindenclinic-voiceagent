@@ -1,0 +1,50 @@
+# Linden — Voice appointment desk
+
+Voice agent that checks doctor availability, books and cancels appointments, identifying callers only by the phone number they say. Dashboard shows doctors, slots, appointments, live transcript and agent activity.
+
+**LLM:** Google Gemini (`gemini-2.5-flash`, free tier) · **STT/TTS:** ElevenLabs (Scribe / Flash v2.5) · **Voice framework:** Pipecat (SmallWebRTC transport, Silero VAD) · **Data:** SQLite mock data
+
+## Run locally
+Requirements: Python 3.12, Node 20+, a Gemini API key, an ElevenLabs API key (STT + TTS permissions).
+
+```bash
+cd server
+python3.12 -m venv .venv && source .venv/bin/activate
+pip install -r requirements.txt
+cp .env.example .env   # fill in keys
+uvicorn app.main:app --port 7860
+```
+```bash
+cd web
+npm install
+npm run dev            # open http://localhost:5173
+```
+Reset demo data: `python -m app.seed --reset` (or "Reset data" in the footer). Demo number with an existing booking: 98765 43210.
+
+## How it works
+Browser ⇄ WebRTC ⇄ Pipecat pipeline (Silero VAD → ElevenLabs STT → Gemini with three tools → ElevenLabs TTS). Tools read and write SQLite; each tool call also goes out on a Server-Sent Events stream that the dashboard listens to. See [PIPELINE.md](PIPELINE.md).
+
+The caller is identified only by the phone number they say. `book_appointment` and `cancel_appointment` refuse to run unless `phone_confirmed` is true, so the agent must read the number back first. Cancelling is two steps: the first call lists the caller's appointments, the second (with `appointment_id`) cancels after the caller confirms.
+
+## Project layout
+```
+server/app/
+  config.py      env, paths, timezone
+  timeutil.py    clinic-local time + spoken dates/times
+  phone.py       parse spoken phone numbers ("double nine", "+91 ...")
+  db.py          SQLite schema, transactions
+  seed.py        mock doctors, slots, appointments (python -m app.seed --reset)
+  repository.py  all SQL queries
+  tools.py       the three tools + Pipecat registration
+  prompts.py     system prompt (built per call with today's dates)
+  events.py      in-process pub/sub for SSE
+  bot.py         Pipecat pipeline
+  main.py        FastAPI: REST, SSE, WebRTC signalling
+web/src/
+  hooks/useCall.ts        call lifecycle + live transcript
+  hooks/useClinicData.ts  REST + SSE, row highlights
+  components/             TopBar, DoctorsPanel, AppointmentsPanel, ActivityLog, PhoneCall, ...
+```
+
+## Tests
+`cd server && pytest`
