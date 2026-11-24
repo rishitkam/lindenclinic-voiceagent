@@ -3,8 +3,6 @@ import ReactDOM from "react-dom/client";
 import { PipecatClient } from "@pipecat-ai/client-js";
 import { PipecatClientAudio, PipecatClientProvider } from "@pipecat-ai/client-react";
 import { SmallWebRTCTransport } from "@pipecat-ai/small-webrtc-transport";
-import "@fontsource/instrument-serif";
-import "@fontsource/instrument-serif/400-italic.css";
 import "@fontsource-variable/geist";
 import "@fontsource-variable/geist-mono";
 import "./styles/tokens.css";

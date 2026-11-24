@@ -1,3 +1,4 @@
+import { motion } from "motion/react";
 import { useEffect, useState } from "react";
 import { dayChip } from "../lib/format";
 import type { DoctorsResponse } from "../types";
@@ -7,10 +8,29 @@ interface Props {
   flash: Record<string, "booked" | "cancelled">;
 }
 
+const TINT: Record<string, string> = {
+  Cardiology: "var(--t-cardio)",
+  Orthopedics: "var(--t-ortho)",
+  Dermatology: "var(--t-derm)",
+  "General Medicine": "var(--t-general)",
+  Pediatrics: "var(--t-peds)",
+  ENT: "var(--t-ent)",
+};
+
+const initials = (name: string) =>
+  name
+    .replace(/^Dr\.?\s*/, "")
+    .split(" ")
+    .map((p) => p[0])
+    .join("")
+    .slice(0, 2);
+
 export function DoctorsPanel({ data, flash }: Props) {
   const [day, setDay] = useState<string | null>(null);
   // Default to the first day that still has an open slot (late evening, "today" is all past).
-  const firstOpen = data?.days.find((d) => data.doctors.some((doc) => doc.slots.some((s) => s.date === d && s.status === "available")));
+  const firstOpen = data?.days.find((d) =>
+    data.doctors.some((doc) => doc.slots.some((s) => s.date === d && s.status === "available")),
+  );
   const selected = day ?? firstOpen ?? data?.today ?? null;
   const isSunday = selected ? new Date(`${selected}T00:00:00`).getDay() === 0 : false;
 
@@ -25,62 +45,68 @@ export function DoctorsPanel({ data, flash }: Props) {
   }, [flash, data]);
 
   return (
-    <section className="panel doctors">
-      <div className="panel-head">
-        <h2>Doctors</h2>
-        <div className="days" role="tablist" aria-label="Day">
+    <section className="section doctors">
+      <div className="section-head">
+        <div>
+          <h2>Doctors</h2>
+          <p className="section-sub">Live availability, updated as Asha books.</p>
+        </div>
+        <div className="segmented" role="tablist" aria-label="Day">
           {data?.days.map((iso) => {
             const chip = dayChip(iso, data.today);
+            const on = iso === selected;
             return (
-              <button
-                key={iso}
-                role="tab"
-                aria-selected={iso === selected}
-                className={`day ${iso === selected ? "is-selected" : ""}`}
-                onClick={() => setDay(iso)}
-              >
-                <span className="day-name">{chip.weekday}</span>
-                <span className="day-num">{chip.day}</span>
+              <button key={iso} role="tab" aria-selected={on} className={`seg ${on ? "is-on" : ""}`} onClick={() => setDay(iso)}>
+                {on && <motion.span layoutId="seg-thumb" className="seg-thumb" transition={{ type: "spring", bounce: 0, duration: 0.35 }} />}
+                <span className="seg-name">{chip.weekday}</span>
+                <span className="seg-num">{chip.day}</span>
               </button>
             );
           })}
         </div>
       </div>
 
-      <ul className="doctor-list">
+      <div className="doctor-grid">
         {data?.doctors.map((doc) => {
           const daySlots = doc.slots.filter((s) => s.date === selected);
           const slots = daySlots.filter((s) => s.status !== "past");
-          const emptyText = isSunday ? "Closed" : daySlots.length ? "Done for the day" : "Not in";
           const open = slots.filter((s) => s.status === "available").length;
+          const emptyText = isSunday ? "Closed on Sundays" : daySlots.length ? "Done for the day" : "Not in this day";
+          const tint = TINT[doc.speciality] ?? "var(--blue)";
           return (
-            <li key={doc.id} className="doctor">
-              <div className="doctor-meta">
-                <span className="doctor-name">{doc.name}</span>
-                <span className="doctor-sub">
-                  {doc.speciality} · {doc.room}
-                </span>
-              </div>
+            <article key={doc.id} className="doctor-card" style={{ ["--tint" as string]: tint }}>
+              <header className="doctor-head">
+                <span className="doctor-avatar">{initials(doc.name)}</span>
+                <div className="doctor-meta">
+                  <span className="doctor-name">{doc.name}</span>
+                  <span className="doctor-sub">
+                    {doc.speciality} · {doc.room}
+                  </span>
+                </div>
+                {slots.length > 0 && (
+                  <span className="open-badge">
+                    <b>{open}</b> open
+                  </span>
+                )}
+              </header>
               <div className="slots">
                 {slots.length === 0 ? (
                   <span className="not-in">{emptyText}</span>
                 ) : (
-                  slots.map((s) => (
-                    <span
-                      key={s.id}
-                      className={`pill mono is-${s.status} ${flash[`slot:${s.id}`] ? `flash-${flash[`slot:${s.id}`]}` : ""}`}
-                      title={s.status === "booked" ? "Booked" : "Open"}
-                    >
-                      {s.label}
-                    </span>
-                  ))
+                  slots.map((s) => {
+                    const f = flash[`slot:${s.id}`];
+                    return (
+                      <span key={s.id} className={`pill is-${s.status} ${f ? `flash-${f}` : ""}`} title={s.status === "booked" ? "Booked" : "Open"}>
+                        {s.label}
+                      </span>
+                    );
+                  })
                 )}
               </div>
-              <span className="open-count mono">{slots.length ? `${open} open` : ""}</span>
-            </li>
+            </article>
           );
         })}
-      </ul>
+      </div>
     </section>
   );
 }

@@ -21,8 +21,8 @@ function describeArgs(args: Record<string, unknown>): string {
 
 export function ActivityLog({ items }: { items: ToolEvent[] }) {
   return (
-    <section className="panel activity">
-      <div className="panel-head">
+    <section className="section card activity">
+      <div className="section-head">
         <h2>Activity</h2>
       </div>
       <ul className="log mono">

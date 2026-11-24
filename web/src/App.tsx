@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import { ActivityLog } from "./components/ActivityLog";
 import { AppointmentsPanel } from "./components/AppointmentsPanel";
 import { DoctorsPanel } from "./components/DoctorsPanel";
+import { Hero } from "./components/Hero";
 import { PhoneCall } from "./components/PhoneCall";
 import { TopBar } from "./components/TopBar";
 import { useCall } from "./hooks/useCall";
@@ -31,7 +32,14 @@ export default function App() {
 
   return (
     <div className="app">
-      <TopBar online={data.online} today={data.doctors?.today ?? null} callActive={callActive} onCall={call.start} />
+      <TopBar online={data.online} callActive={callActive} onCall={call.start} />
+      <Hero
+        doctors={data.doctors}
+        appointments={data.appointments}
+        online={data.online}
+        callActive={callActive}
+        onCall={call.start}
+      />
       <main className="grid">
         <DoctorsPanel data={data.doctors} flash={data.flash} />
         <div className="side">

@@ -16,7 +16,7 @@ export function ConfirmationCard({ kind, appointment }: Props) {
       initial={{ y: 24, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       exit={{ y: 16, opacity: 0 }}
-      transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
+      transition={{ type: "spring", bounce: 0.2, duration: 0.45 }}
     >
       <span className="confirm-icon">{kind === "booked" ? <CheckIcon size={16} /> : <CrossIcon size={16} />}</span>
       <div className="confirm-body">

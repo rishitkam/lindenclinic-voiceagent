@@ -22,8 +22,8 @@ export function AppointmentsPanel({ appointments, flash }: Props) {
   }, [flash]);
 
   return (
-    <section className="panel appointments">
-      <div className="panel-head">
+    <section className="section card appointments">
+      <div className="section-head">
         <h2>Appointments</h2>
         <div className="toggle">
           <button className={view === "upcoming" ? "is-on" : ""} onClick={() => setView("upcoming")}>
@@ -46,9 +46,14 @@ export function AppointmentsPanel({ appointments, flash }: Props) {
                 initial={{ opacity: 0, y: -6 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0 }}
-                transition={{ duration: 0.24, ease: [0.22, 1, 0.36, 1] }}
+                transition={{ type: "spring", bounce: 0, duration: 0.4 }}
                 className={`appt is-${a.status} ${flash[a.id] ? `flash-${flash[a.id]}` : ""}`}
               >
+                <span className="appt-time">
+                  <b>{when.time.replace(/ (AM|PM)/, "")}</b>
+                  <small>{when.time.slice(-2)}</small>
+                </span>
+                <div className="appt-body">
                 <div className="appt-row">
                   <span className="appt-name">{a.patientName}</span>
                   {a.status === "cancelled" ? <span className="appt-cancelled">Cancelled</span> : null}
@@ -57,11 +62,11 @@ export function AppointmentsPanel({ appointments, flash }: Props) {
                   <span className="appt-doc">
                     {a.doctorName} · {when.date}
                   </span>
-                  <span className="mono">{when.time}</span>
                 </div>
                 <div className="appt-row faint mono">
                   <span>{a.id}</span>
                   <span>{a.phoneDisplay}</span>
+                </div>
                 </div>
               </motion.li>
             );

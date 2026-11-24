@@ -75,10 +75,10 @@ export function PhoneCall({ call, change }: Props) {
             className={`phone is-${call.status}`}
             role="dialog"
             aria-label="Call with Linden Clinic"
-            initial={{ y: 40, scale: 0.96, opacity: 0 }}
-            animate={{ y: 0, scale: 1, opacity: 1 }}
-            exit={{ y: 40, scale: 0.96, opacity: 0 }}
-            transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
+            initial={{ y: 60, scale: 0.92, opacity: 0, filter: "blur(8px)" }}
+            animate={{ y: 0, scale: 1, opacity: 1, filter: "blur(0px)" }}
+            exit={{ y: 60, scale: 0.92, opacity: 0, filter: "blur(8px)" }}
+            transition={{ type: "spring", bounce: 0, duration: 0.45 }}
           >
             <div className="phone-screen">
               <StatusBar />

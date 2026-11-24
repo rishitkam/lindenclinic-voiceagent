@@ -1,29 +1,51 @@
 :root {
-  --paper: #f5f3ee;
+  /* surfaces */
+  --bg: #f5f5f7;
   --surface: #ffffff;
-  --surface-2: #faf9f6;
-  --ink: #15171b;
-  --ink-2: #4a4f58;
-  --ink-3: #8b909a;
-  --line: #e5e1d8;
-  --line-strong: #d4cfc3;
-  --accent: #0e6b57;
-  --accent-ink: #ffffff;
-  --accent-soft: #e2f0eb;
-  --danger: #b3432c;
-  --danger-soft: #f6e5e0;
-  --phone-bg: #0d0f12;
-  --phone-ink: #f2f1ee;
-  --phone-ink-2: #9aa0a8;
+  --surface-2: #fbfbfd;
+  --fill: rgba(120, 120, 128, 0.12);
+  --fill-2: rgba(120, 120, 128, 0.08);
+  --line: rgba(0, 0, 0, 0.08);
+  --line-strong: rgba(0, 0, 0, 0.14);
 
-  --font-display: "Instrument Serif", Georgia, serif;
-  --font-ui: "Geist Variable", system-ui, sans-serif;
-  --font-mono: "Geist Mono Variable", ui-monospace, monospace;
+  /* ink */
+  --ink: #1d1d1f;
+  --ink-2: #6e6e73;
+  --ink-3: #86868b;
 
-  --r-sm: 6px;
-  --r-md: 10px;
-  --r-phone: 44px;
-  --shadow-card: 0 1px 0 rgba(21, 23, 27, 0.04), 0 1px 2px rgba(21, 23, 27, 0.04);
-  --shadow-phone: 0 30px 80px -20px rgba(13, 15, 18, 0.45), 0 0 0 1px rgba(13, 15, 18, 0.9);
+  /* system colours */
+  --blue: #0071e3;
+  --blue-press: #0062c4;
+  --blue-soft: rgba(0, 113, 227, 0.1);
+  --green: #28a745;
+  --green-soft: rgba(52, 199, 89, 0.14);
+  --red: #e5352b;
+  --red-soft: rgba(255, 59, 48, 0.12);
+
+  /* speciality tints */
+  --t-cardio: #ff375f;
+  --t-ortho: #ff9f0a;
+  --t-derm: #bf5af2;
+  --t-general: #0a84ff;
+  --t-peds: #30d158;
+  --t-ent: #64d2ff;
+
+  /* phone */
+  --phone-ink: #f5f5f7;
+  --phone-ink-2: rgba(235, 235, 245, 0.6);
+
+  /* type */
+  --font-ui: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Geist Variable", system-ui, sans-serif;
+  --font-display: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Geist Variable", system-ui, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", "Geist Mono Variable", monospace;
+
+  /* shape + depth */
+  --r-sm: 10px;
+  --r-md: 18px;
+  --r-lg: 28px;
+  --r-phone: 56px;
+  --shadow-card: 0 1px 1px rgba(0, 0, 0, 0.02), 0 4px 24px rgba(0, 0, 0, 0.04);
+  --shadow-float: 0 2px 6px rgba(0, 0, 0, 0.04), 0 24px 60px -12px rgba(0, 0, 0, 0.18);
+  --shadow-phone: 0 40px 100px -20px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(0, 0, 0, 0.6);
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
 }
