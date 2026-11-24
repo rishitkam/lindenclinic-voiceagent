@@ -17,11 +17,11 @@ export function Robot() {
             <circle className="robot-light" cx="32" cy="20" r="3.2" fill="#7dffa1" />
             {/* head */}
             <rect x="12" y="27" width="40" height="30" rx="12" fill="#ffffff" />
-            <rect x="17" y="33" width="30" height="17" rx="8" fill="#0b2a5b" />
+            <rect x="17" y="33" width="30" height="17" rx="8" fill="#122056" />
             {/* eyes */}
             <g className="robot-eyes">
-              <ellipse cx="26" cy="41.5" rx="3" ry="3.6" fill="#7fd4ff" />
-              <ellipse cx="38" cy="41.5" rx="3" ry="3.6" fill="#7fd4ff" />
+              <ellipse cx="26" cy="41.5" rx="3" ry="3.6" fill="#b8bdff" />
+              <ellipse cx="38" cy="41.5" rx="3" ry="3.6" fill="#b8bdff" />
             </g>
             {/* cheeks + ears */}
             <circle cx="20.5" cy="47.5" r="1.8" fill="#ff8fb1" opacity="0.8" />
@@ -30,7 +30,7 @@ export function Robot() {
             <rect x="51" y="36" width="5" height="11" rx="2.5" fill="#dfe9ff" />
             {/* body */}
             <rect x="19" y="58" width="26" height="22" rx="9" fill="#ffffff" />
-            <circle cx="32" cy="68" r="4" fill="#0071e3" />
+            <circle cx="32" cy="68" r="4" fill="#5b65dc" />
             <circle cx="32" cy="68" r="1.6" fill="#ffffff" />
             {/* left arm (resting) */}
             <path d="M19 63 q-7 4 -7 11" stroke="#ffffff" strokeWidth="4" strokeLinecap="round" fill="none" />

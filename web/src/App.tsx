@@ -62,7 +62,7 @@ export default function App() {
       </main>
       <footer className="footer">
         <span>
-          Mock data · Gemini · ElevenLabs · Pipecat · Illustrations by{" "}
+          Mock data · OpenAI · ElevenLabs · Pipecat · Illustrations by{" "}
           <a href="https://www.openpeeps.com/" target="_blank" rel="noreferrer">
             Open Peeps
           </a>

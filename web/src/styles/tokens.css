@@ -9,14 +9,14 @@
   --line-strong: rgba(0, 0, 0, 0.14);
 
   /* ink */
-  --ink: #1d1d1f;
-  --ink-2: #6e6e73;
-  --ink-3: #86868b;
+  --ink: #122056; /* brand navy */
+  --ink-2: #4d5675;
+  --ink-3: #8a90a8;
 
   /* system colours */
-  --blue: #0071e3;
-  --blue-press: #0062c4;
-  --blue-soft: rgba(0, 113, 227, 0.1);
+  --blue: #5b65dc; /* brand accent (periwinkle) */
+  --blue-press: #4a53c4;
+  --blue-soft: rgba(91, 101, 220, 0.11);
   --green: #28a745;
   --green-soft: rgba(52, 199, 89, 0.14);
   --red: #e5352b;
@@ -26,7 +26,7 @@
   --t-cardio: #ff375f;
   --t-ortho: #ff9f0a;
   --t-derm: #bf5af2;
-  --t-general: #0a84ff;
+  --t-general: #5b65dc;
   --t-peds: #30d158;
   --t-ent: #64d2ff;
 

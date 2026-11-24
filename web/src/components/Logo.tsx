@@ -7,8 +7,8 @@ export function Logo({ size = 28 }: { size?: number }) {
     <svg width={size} height={size} viewBox="0 0 64 64" aria-hidden className="logo">
       <defs>
         <linearGradient id="logo-bg" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor="#3b9bff" />
-          <stop offset="1" stopColor="#0058d6" />
+          <stop offset="0" stopColor="#7a83ec" />
+          <stop offset="1" stopColor="#3f48bd" />
         </linearGradient>
         <linearGradient id="logo-gloss" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0" stopColor="#ffffff" stopOpacity="0.35" />
@@ -29,7 +29,7 @@ export function Logo({ size = 28 }: { size?: number }) {
       {/* stem */}
       <path d="M32 51v5" stroke="#ffffff" strokeWidth="3" strokeLinecap="round" />
       {/* waveform vein */}
-      <g stroke="#0a6cf0" strokeWidth="3" strokeLinecap="round">
+      <g stroke="#5b65dc" strokeWidth="3" strokeLinecap="round">
         <path d="M24.5 31v4" />
         <path d="M28.5 27v12" />
         <path d="M32.5 23v20" />

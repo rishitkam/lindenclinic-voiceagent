@@ -27,7 +27,7 @@ button:disabled {
   cursor: default;
 }
 :focus-visible {
-  outline: 3px solid rgba(0, 113, 227, 0.5);
+  outline: 3px solid rgba(91, 101, 220, 0.5);
   outline-offset: 2px;
   border-radius: 8px;
 }
@@ -161,7 +161,7 @@ h2 {
   border-radius: 8px;
   display: grid;
   place-items: center;
-  background: linear-gradient(160deg, #2b8cff, #0063d1);
+  background: linear-gradient(160deg, #7a83ec, #3f48bd);
   color: #fff;
   font: 700 14px/1 var(--font-display);
 }
@@ -291,14 +291,14 @@ h2 {
   overflow: hidden;
   isolation: isolate;
   background:
-    radial-gradient(120% 90% at 100% 0%, rgba(120, 190, 255, 0.55) 0%, transparent 55%),
-    radial-gradient(90% 80% at 0% 100%, rgba(0, 40, 110, 0.6) 0%, transparent 60%),
-    linear-gradient(160deg, #1f7bff 0%, #0058c7 100%);
-  box-shadow: 0 18px 40px -16px rgba(0, 98, 209, 0.6);
+    radial-gradient(120% 90% at 100% 0%, rgba(169, 175, 247, 0.55) 0%, transparent 55%),
+    radial-gradient(90% 80% at 0% 100%, rgba(18, 32, 86, 0.7) 0%, transparent 60%),
+    linear-gradient(160deg, #6b74e6 0%, #3a43b5 100%);
+  box-shadow: 0 18px 40px -16px rgba(70, 78, 200, 0.6);
   transition: box-shadow 0.3s var(--ease-out);
 }
 .call-card:hover:not(:disabled) {
-  box-shadow: 0 24px 50px -16px rgba(0, 98, 209, 0.75);
+  box-shadow: 0 24px 50px -16px rgba(70, 78, 200, 0.75);
 }
 .call-card:disabled {
   filter: grayscale(0.6);
@@ -753,7 +753,7 @@ h2 {
   height: 100%;
   border-radius: 46px;
   background:
-    radial-gradient(130% 55% at 50% -5%, rgba(10, 132, 255, 0.45), transparent 60%),
+    radial-gradient(130% 55% at 50% -5%, rgba(91, 101, 220, 0.5), transparent 60%),
     radial-gradient(90% 40% at 100% 100%, rgba(94, 92, 230, 0.25), transparent 70%),
     #000;
   color: var(--phone-ink);
@@ -816,11 +816,11 @@ h2 {
   height: 88px;
   flex: none;
   border-radius: 50%;
-  background: linear-gradient(160deg, #4aa3ff, #0060df);
+  background: linear-gradient(160deg, #7c85ee, #3f48bd);
   display: grid;
   place-items: center;
   font: 600 38px/1 var(--font-display);
-  box-shadow: 0 10px 30px -8px rgba(10, 132, 255, 0.7);
+  box-shadow: 0 10px 30px -8px rgba(91, 101, 220, 0.7);
   transition:
     width 0.5s var(--ease-out),
     height 0.5s var(--ease-out),
@@ -835,7 +835,7 @@ h2 {
   position: absolute;
   inset: 0;
   border-radius: 50%;
-  border: 1.5px solid rgba(100, 180, 255, 0.8);
+  border: 1.5px solid rgba(169, 175, 247, 0.85);
   animation: ripple 1.8s ease-out infinite;
 }
 .ripple.r2 {
@@ -871,7 +871,7 @@ h2 {
 .waveform {
   width: 100%;
   height: 48px;
-  color: #64d2ff;
+  color: #a9aff7;
   margin-top: 14px;
 }
 .transcript {
@@ -909,7 +909,7 @@ h2 {
   align-items: flex-end;
 }
 .turn.is-user p {
-  background: #0a84ff;
+  background: var(--blue);
   border-radius: 18px 18px 6px 18px;
 }
 .interim {
@@ -1334,7 +1334,7 @@ h2 {
 .robot {
   display: block;
   overflow: visible;
-  filter: drop-shadow(0 6px 8px rgba(0, 20, 60, 0.35));
+  filter: drop-shadow(0 6px 8px rgba(18, 32, 86, 0.4));
 }
 .robot-eyes {
   transform-box: fill-box;
@@ -1401,5 +1401,5 @@ h2 {
 
 .logo {
   display: block;
-  filter: drop-shadow(0 1px 2px rgba(0, 60, 160, 0.25));
+  filter: drop-shadow(0 1px 2px rgba(40, 50, 140, 0.3));
 }
