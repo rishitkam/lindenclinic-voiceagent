@@ -1,5 +1,7 @@
 import { useMemo } from "react";
 import { ActivityLog } from "./components/ActivityLog";
+import { CrowdCanvas } from "./components/CrowdCanvas";
+import { GradientDots } from "./components/GradientDots";
 import { AppointmentsPanel } from "./components/AppointmentsPanel";
 import { DoctorsPanel } from "./components/DoctorsPanel";
 import { Hero } from "./components/Hero";
@@ -32,6 +34,17 @@ export default function App() {
 
   return (
     <div className="app">
+      {/* Full-page animated dot background, behind everything. */}
+      <div className="page-bg" aria-hidden>
+        <GradientDots className="page-bg-dots" duration={40} colorCycleDuration={30} />
+      </div>
+      {/* Walking crowds in the empty side margins on wide screens (hidden when there's no room). */}
+      <div className="gutter-crowd is-left" aria-hidden>
+        <CrowdCanvas className="crowd-canvas" count={9} />
+      </div>
+      <div className="gutter-crowd is-right" aria-hidden>
+        <CrowdCanvas className="crowd-canvas" count={9} />
+      </div>
       <TopBar online={data.online} callActive={callActive} onCall={call.start} />
       <Hero
         doctors={data.doctors}
@@ -48,7 +61,16 @@ export default function App() {
         </div>
       </main>
       <footer className="footer">
-        <span>Mock data · Gemini · ElevenLabs · Pipecat</span>
+        <span>
+          Mock data · Gemini · ElevenLabs · Pipecat · Illustrations by{" "}
+          <a href="https://www.openpeeps.com/" target="_blank" rel="noreferrer">
+            Open Peeps
+          </a>
+          , crowd by{" "}
+          <a href="https://skiper-ui.com" target="_blank" rel="noreferrer">
+            Skiper UI
+          </a>
+        </span>
         <button className="text-link" onClick={reset}>
           Reset data
         </button>

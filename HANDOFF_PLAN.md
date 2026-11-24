@@ -1,4 +1,4 @@
-# HANDOFF PLAN — Voice AI Doctor Appointment Assistant
+# HANDOFF PLAN, Voice AI Doctor Appointment Assistant
 
 > **Read this whole file before writing any code.** It is the single source of truth.
 > Source brief: `SDE_Intern_Round1_Assignment.pdf` (same folder).
@@ -11,7 +11,7 @@
 
 1. Work **phase by phase** (Section 9). Do not start a phase until the previous phase's **Checkpoint** passes.
 2. Code blocks marked **`EXACT`** are version‑independent: copy them as written.
-   Code blocks marked **`REFERENCE — VERIFY`** touch Pipecat / Pipecat‑client APIs that change between versions. Before using them, run the **Verification protocol (Section 8)** and adapt *only* import paths / class names / argument names — never the behaviour.
+   Code blocks marked **`REFERENCE, VERIFY`** touch Pipecat / Pipecat‑client APIs that change between versions. Before using them, run the **Verification protocol (Section 8)** and adapt *only* import paths / class names / argument names, never the behaviour.
 3. Do not invent features, rename files, rename tools, or change the stack. If something in this plan is impossible, stop and write down why in `NOTES.md`, then pick the closest option that keeps behaviour identical.
 4. Never print, log, or commit API keys. Never commit `.env`.
 5. ElevenLabs free credits are small. **Test all logic with pytest first (no keys needed).** Only make real voice calls once Phases 1–4 pass.
@@ -52,11 +52,11 @@ A browser dashboard for a fictional clinic ("**Linden Clinic**"). The user click
 
 ---
 
-## 3. Tech stack (fixed — do not change)
+## 3. Tech stack (fixed, do not change)
 
 | Layer | Choice | Why |
 |---|---|---|
-| Python | **3.12** (not 3.13/3.14 — some audio wheels lag) | stability |
+| Python | **3.12** (not 3.13/3.14, some audio wheels lag) | stability |
 | Voice framework | **pipecat-ai** (latest at install time, then frozen) with extras `google,elevenlabs,silero,webrtc` | required |
 | Transport | **Pipecat SmallWebRTC** (peer‑to‑peer WebRTC, runs locally) | free, no third‑party account |
 | VAD | **Silero** (`SileroVADAnalyzer`) | bonus + needed to segment speech for STT |
@@ -103,10 +103,10 @@ Ports: **server 7860**, **web 5173** (Vite proxies `/api` → 7860, so no CORS i
                                                         └────────────────────────────────────────────────────────┘
 ```
 
-### 4.2 Two channels, two jobs (important — do not mix them)
+### 4.2 Two channels, two jobs (important, do not mix them)
 
 * **WebRTC (audio + RTVI data channel):** audio both ways, plus transcript events and "bot ready". Owned by Pipecat; we only consume its client callbacks.
-* **SSE `/api/events`:** *our* app events — `appointment.booked`, `appointment.cancelled`, `tool`, `call.started`, `call.ended`, `data.reset`. Emitted by `tools.py`/`bot.py`, consumed by the dashboard *and* the phone (booking card). This works even if RTVI APIs change, which is why data updates do **not** go over RTVI.
+* **SSE `/api/events`:** *our* app events, `appointment.booked`, `appointment.cancelled`, `tool`, `call.started`, `call.ended`, `data.reset`. Emitted by `tools.py`/`bot.py`, consumed by the dashboard *and* the phone (booking card). This works even if RTVI APIs change, which is why data updates do **not** go over RTVI.
 
 ### 4.3 Call sequence
 
@@ -130,7 +130,7 @@ Greet ("Linden Clinic, this is Asha. How can I help?")
  ├─ Book:
  │    1. know doctor + slot (from a check_doctor_availability result in THIS call)
  │    2. ask name (once; optional) and phone number
- │    3. read phone back digit by digit in groups ("9 8 7 6 5 — 4 3 2 1 0, is that right?")
+ │    3. read phone back digit by digit in groups ("9 8 7 6 5, 4 3 2 1 0, is that right?")
  │    4. caller says yes → book_appointment(slot_id, patient_name, phone, phone_confirmed=true)
  │       caller says no → ask again, repeat step 3
  │    5. confirm doctor, day, time out loud
@@ -214,7 +214,7 @@ nexovai/
 
 ---
 
-## 6. Backend — detailed spec and code
+## 6. Backend, detailed spec and code
 
 ### 6.1 `server/requirements.txt` (EXACT)
 
@@ -230,7 +230,7 @@ pytest
 
 After the first successful install **and** a working call, replace this file's lines with exact pins from `pip freeze` for these packages (e.g. `pipecat-ai[...]==X.Y.Z`) and record the Pipecat version in `NOTES.md`. Never upgrade during the build.
 
-Optional dev helper (only if it installs cleanly): `pipecat-ai-small-webrtc-prebuilt` — gives a ready test UI to verify the bot before the React app exists (Phase 5).
+Optional dev helper (only if it installs cleanly): `pipecat-ai-small-webrtc-prebuilt`, gives a ready test UI to verify the bot before the React app exists (Phase 5).
 
 ### 6.2 `server/.env.example` (EXACT)
 
@@ -248,7 +248,7 @@ ELEVENLABS_TTS_MODEL=eleven_flash_v2_5
 CLINIC_TZ=Asia/Kolkata
 ```
 
-### 6.3 `.gitignore` (EXACT, repo root — create BEFORE `git init`/first commit)
+### 6.3 `.gitignore` (EXACT, repo root, create BEFORE `git init`/first commit)
 
 ```
 .env
@@ -421,7 +421,7 @@ def display_phone(number: str) -> str:
 
 ### 6.8 `app/db.py` (EXACT)
 
-Design decision: **a slot is "available" iff it is in the future and has no appointment with status `booked`.** There is no `is_booked` column — one source of truth, impossible to get out of sync. A partial unique index makes double‑booking impossible even under races.
+Design decision: **a slot is "available" iff it is in the future and has no appointment with status `booked`.** There is no `is_booked` column, one source of truth, impossible to get out of sync. A partial unique index makes double‑booking impossible even under races.
 
 ```python
 """SQLite schema and connection helpers. One short-lived connection per operation."""
@@ -869,7 +869,7 @@ def publish(event: dict) -> None:
             pass  # a stuck client must never block the voice pipeline
 ```
 
-### 6.12 `app/tools.py` — logic (EXACT) + Pipecat glue (REFERENCE — VERIFY)
+### 6.12 `app/tools.py`, logic (EXACT) + Pipecat glue (REFERENCE, VERIFY)
 
 **Contract for every tool result** (what the LLM sees): `{"ok": true, ...}` or `{"ok": false, "error": "CODE", "message": "instruction for the agent"}`. Keys are snake_case. A private key `_events` (list of dashboard events) is popped by the wrapper before the result goes to the LLM.
 
@@ -1030,7 +1030,7 @@ HANDLERS = {
 }
 
 
-# ---------------- Pipecat glue (REFERENCE — VERIFY imports, see Section 8) ----------------
+# ---------------- Pipecat glue (REFERENCE, VERIFY imports, see Section 8) ----------------
 from pipecat.adapters.schemas.function_schema import FunctionSchema  # noqa: E402
 from pipecat.adapters.schemas.tools_schema import ToolsSchema  # noqa: E402
 
@@ -1167,7 +1167,7 @@ Start the call by saying exactly: "Hello, {CLINIC_NAME}, this is {AGENT_NAME}. H
 """
 ```
 
-### 6.14 `app/bot.py` (REFERENCE — VERIFY every import against the installed Pipecat, Section 8)
+### 6.14 `app/bot.py` (REFERENCE, VERIFY every import against the installed Pipecat, Section 8)
 
 ```python
 """The voice pipeline: mic audio -> VAD -> STT -> LLM(+tools) -> TTS -> speaker audio."""
@@ -1270,10 +1270,10 @@ Notes:
 * If `ElevenLabsSTTService` requires an `aiohttp_session` argument, create `session = aiohttp.ClientSession()` at the start of `run_bot`, pass it, and `await session.close()` in a `finally:` around the runner.
 * If the installed Pipecat adds RTVI automatically to `PipelineTask` (look for `enable_rtvi` / `rtvi_processor` in `PipelineTask.__init__`), do **not** add a second RTVIProcessor; use the task's built‑in one and its `on_client_ready` event.
 * If Gemini puts the system message nowhere (agent ignores rules), pass it instead as `GoogleLLMService(..., system_instruction=build_system_prompt())` and start `messages` empty.
-* Gemini returning an empty answer right after a tool call is a known issue with some "thinking" models. If it happens, set `GEMINI_MODEL=gemini-2.5-flash-lite` (or the newest free "flash" model listed in AI Studio) — no code change needed.
+* Gemini returning an empty answer right after a tool call is a known issue with some "thinking" models. If it happens, set `GEMINI_MODEL=gemini-2.5-flash-lite` (or the newest free "flash" model listed in AI Studio), no code change needed.
 * Optional upgrade (only after everything works): `ElevenLabsRealtimeSTTService` for lower latency. Keep the segmented one if in doubt.
 
-### 6.15 `app/main.py` (REFERENCE — VERIFY the WebRTC parts)
+### 6.15 `app/main.py` (REFERENCE, VERIFY the WebRTC parts)
 
 ```python
 """HTTP API: dashboard data, SSE events, WebRTC signalling for the voice call."""
@@ -1377,11 +1377,11 @@ async def offer(request: dict, background_tasks: BackgroundTasks):
     return answer
 ```
 
-**Signalling check (important):** newer `@pipecat-ai/small-webrtc-transport` versions also send **`PATCH /api/offer`** with trickle‑ICE candidates. If the browser console/server log shows `405 Method Not Allowed` on PATCH, the installed Pipecat will have a helper — search for `SmallWebRTCRequestHandler` (Section 8). If it exists, replace the hand‑written `/api/offer` with the helper exactly as the official `p2p-webrtc`/`voice-agent` example for that version does (both POST and PATCH routes). If it does not exist, the client will not send PATCH and the code above is correct.
+**Signalling check (important):** newer `@pipecat-ai/small-webrtc-transport` versions also send **`PATCH /api/offer`** with trickle‑ICE candidates. If the browser console/server log shows `405 Method Not Allowed` on PATCH, the installed Pipecat will have a helper, search for `SmallWebRTCRequestHandler` (Section 8). If it exists, replace the hand‑written `/api/offer` with the helper exactly as the official `p2p-webrtc`/`voice-agent` example for that version does (both POST and PATCH routes). If it does not exist, the client will not send PATCH and the code above is correct.
 
-**Run:** from `server/`: `uvicorn app.main:app --port 7860` (no `--reload` while testing calls — reload kills live calls).
+**Run:** from `server/`: `uvicorn app.main:app --port 7860` (no `--reload` while testing calls, reload kills live calls).
 
-### 6.16 Tests (EXACT) — must all pass before any voice work
+### 6.16 Tests (EXACT), must all pass before any voice work
 
 `tests/conftest.py`:
 ```python
@@ -1530,11 +1530,11 @@ def test_cancel_two_step():
     assert third["error"] == "NO_APPOINTMENT"
 ```
 
-> If a test fails, fix the **code**, not the test — unless the test contradicts this plan (then write why in `NOTES.md`).
+> If a test fails, fix the **code**, not the test, unless the test contradicts this plan (then write why in `NOTES.md`).
 
 ---
 
-## 7. Frontend — detailed spec
+## 7. Frontend, detailed spec
 
 ### 7.1 Setup commands (from repo root)
 
@@ -1545,7 +1545,7 @@ npm create vite@latest web -- --template react-ts
 cd web && npm install @pipecat-ai/client-js @pipecat-ai/client-react @pipecat-ai/small-webrtc-transport motion @fontsource/instrument-serif @fontsource-variable/geist @fontsource-variable/geist-mono
 ```
 
-Delete Vite's demo files (`App.css`, `index.css`, `assets/react.svg`, the demo content in `App.tsx`). Do **not** install Tailwind, shadcn, MUI, Chakra, or any icon pack — icons are 4–5 tiny inline SVGs written by hand.
+Delete Vite's demo files (`App.css`, `index.css`, `assets/react.svg`, the demo content in `App.tsx`). Do **not** install Tailwind, shadcn, MUI, Chakra, or any icon pack, icons are 4–5 tiny inline SVGs written by hand.
 
 `web/vite.config.ts` (EXACT):
 ```ts
@@ -1561,7 +1561,7 @@ export default defineConfig({
 });
 ```
 
-### 7.2 Types — `src/types.ts` (EXACT; mirrors backend JSON)
+### 7.2 Types, `src/types.ts` (EXACT; mirrors backend JSON)
 
 ```ts
 export type SlotStatus = "available" | "booked" | "past";
@@ -1600,7 +1600,7 @@ export const api = {
 };
 ```
 
-### 7.4 `src/lib/sounds.ts` (EXACT — synthesized, no audio files, no licensing issues)
+### 7.4 `src/lib/sounds.ts` (EXACT, synthesized, no audio files, no licensing issues)
 
 ```ts
 let ctx: AudioContext | null = null;
@@ -1686,7 +1686,7 @@ export function hhmmss(at: string) {
 
 ### 7.6 Hooks
 
-**`src/main.tsx`** (REFERENCE — VERIFY constructor/connect options against `node_modules/@pipecat-ai/*/dist/*.d.ts`):
+**`src/main.tsx`** (REFERENCE, VERIFY constructor/connect options against `node_modules/@pipecat-ai/*/dist/*.d.ts`):
 ```tsx
 import React from "react";
 import ReactDOM from "react-dom/client";
@@ -1783,7 +1783,7 @@ export function useClinicData() {
 }
 ```
 
-**`src/hooks/useCall.ts`** (REFERENCE — VERIFY event names/`connect` options; logic is EXACT):
+**`src/hooks/useCall.ts`** (REFERENCE, VERIFY event names/`connect` options; logic is EXACT):
 ```ts
 import { useCallback, useRef, useState } from "react";
 import { RTVIEvent } from "@pipecat-ai/client-js";
@@ -1962,9 +1962,9 @@ export function Waveform({ active }: { active: boolean }) {
 }
 ```
 
-### 7.7 Design direction — make it look *made*, not generated
+### 7.7 Design direction, make it look *made*, not generated
 
-Concept: **"front desk ledger"** — a calm, editorial clinic front‑desk tool. Warm paper background, ink‑black type, one deep green accent, a serif display face for headings and numbers, mono for times/IDs. Density like a real ops tool (Linear/Stripe‑dashboard level of restraint), not a marketing page.
+Concept: **"front desk ledger"**, a calm, editorial clinic front‑desk tool. Warm paper background, ink‑black type, one deep green accent, a serif display face for headings and numbers, mono for times/IDs. Density like a real ops tool (Linear/Stripe‑dashboard level of restraint), not a marketing page.
 
 **`src/styles/tokens.css`** (EXACT):
 ```css
@@ -2003,9 +2003,9 @@ Typography rules: body 14px/1.45 `--font-ui`, color `--ink`. Section titles: `--
 
 **Hard bans** (these make it look AI‑generated): purple/blue gradients, glassmorphism/blur cards, emoji, "AI‑powered"/"Seamless"/"Revolutionize" copy, sparkle icons, drop‑shadow-heavy cards, rounded‑2xl everything, a hero section, stock illustrations, centered marketing layout, more than one accent colour, lorem ipsum.
 
-### 7.8 Layout and components (wording is final — keep it this short)
+### 7.8 Layout and components (wording is final, keep it this short)
 
-**Desktop (≥1100px)** — CSS grid, max-width 1360px, centred, 24px gutters:
+**Desktop (≥1100px)**, CSS grid, max-width 1360px, centred, 24px gutters:
 
 ```
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -2028,9 +2028,9 @@ Typography rules: body 14px/1.45 `--font-ui`, color `--ink`. Section titles: `--
 ```
 Grid: `grid-template-columns: minmax(0, 1.65fr) minmax(340px, 1fr)`. Right column: Appointments (flex 1, scroll inside, max-height ~60vh) above Activity (max-height ~32vh, scroll).
 
-**TopBar.tsx** — left: wordmark "Linden" in `--font-display` 24px + "Clinic desk" 12px `--ink-3`. Right: status dot (8px circle, `--accent` with a soft pulse when `online`, `--ink-3` and text "Offline" when not) + label "Agent online"; today's date in mono; **Try call** button (solid `--accent`, white text, 36px high, radius `--r-sm`, a 14px handset SVG). Button is disabled while a call is active.
+**TopBar.tsx**, left: wordmark "Linden" in `--font-display` 24px + "Clinic desk" 12px `--ink-3`. Right: status dot (8px circle, `--accent` with a soft pulse when `online`, `--ink-3` and text "Offline" when not) + label "Agent online"; today's date in mono; **Try call** button (solid `--accent`, white text, 36px high, radius `--r-sm`, a 14px handset SVG). Button is disabled while a call is active.
 
-**DoctorsPanel.tsx** — header row: title "Doctors" + day selector (7 chips; chip = weekday small caps over day number in display font; selected chip has ink background + paper text). State: `selectedDay` defaulting to `today`. Each doctor = a row (not a card) separated by `--line` hairlines: left column 220px with name (15px, 500) and "Speciality · Room" (`--ink-3`); right: wrap of slot pills for the selected day.
+**DoctorsPanel.tsx**, header row: title "Doctors" + day selector (7 chips; chip = weekday small caps over day number in display font; selected chip has ink background + paper text). State: `selectedDay` defaulting to `today`. Each doctor = a row (not a card) separated by `--line` hairlines: left column 220px with name (15px, 500) and "Speciality · Room" (`--ink-3`); right: wrap of slot pills for the selected day.
 * Pill: mono 12px, 28px tall, padding 0 10px, radius 999px.
 * `available`: `--surface`, border `--line-strong`, ink text.
 * `booked`: `--surface-2`, text `--ink-3`, line‑through, no border.
@@ -2039,7 +2039,7 @@ Grid: `grid-template-columns: minmax(0, 1.65fr) minmax(340px, 1fr)`. Right colum
 * Doctor not working that day: text "Not in" (`--ink-3`, italic display font).
 * Count at end of row: "6 open" (mono, `--ink-3`).
 
-**AppointmentsPanel.tsx** — title "Appointments", right side count "N upcoming". Toggle (two tiny text buttons): "Upcoming" (default: status booked) / "All". List rows (already newest‑first from API):
+**AppointmentsPanel.tsx**, title "Appointments", right side count "N upcoming". Toggle (two tiny text buttons): "Upcoming" (default: status booked) / "All". List rows (already newest‑first from API):
 * line 1: patient name (500) + right: status (only when cancelled: small `--danger` text "Cancelled").
 * line 2: `Dr. Name · Wed 25 Nov` (`--ink-2`) + right: time (mono).
 * line 3: ID (mono, `--ink-3`) + right: `phoneDisplay` (mono, `--ink-3`).
@@ -2048,9 +2048,9 @@ Grid: `grid-template-columns: minmax(0, 1.65fr) minmax(340px, 1fr)`. Right colum
 * New rows animate in with `motion` (`initial={{opacity:0,y:-6}} animate={{opacity:1,y:0}}`, 240ms, `--ease-out`). Use `<AnimatePresence initial={false}>` and `layout` on rows.
 * Empty: "No appointments yet."
 
-**ActivityLog.tsx** — title "Activity". Mono 12px rows: `HH:MM` (`--ink-3`) · tool name (ink) · compact args (`speciality: skin`, `date: 2026-11-26`, phone shown as last 4 digits only `••3210`) · result mark (`ok` → small `--accent` dot; error → `--danger` text of the error code, e.g. `PHONE_NOT_CONFIRMED`). Empty: "Agent actions show up here."
+**ActivityLog.tsx**, title "Activity". Mono 12px rows: `HH:MM` (`--ink-3`) · tool name (ink) · compact args (`speciality: skin`, `date: 2026-11-26`, phone shown as last 4 digits only `••3210`) · result mark (`ok` → small `--accent` dot; error → `--danger` text of the error code, e.g. `PHONE_NOT_CONFIRMED`). Empty: "Agent actions show up here."
 
-**PhoneCall.tsx** — rendered when `status !== "idle"`. Fixed position bottom‑right (24px from edges), 340×700, radius `--r-phone`, background `--phone-bg`, `--shadow-phone`, 10px inner bezel. Enters with `motion`: from `y: 40, scale: .96, opacity: 0` to rest (320ms `--ease-out`); exits reverse. Inside, top to bottom:
+**PhoneCall.tsx**, rendered when `status !== "idle"`. Fixed position bottom‑right (24px from edges), 340×700, radius `--r-phone`, background `--phone-bg`, `--shadow-phone`, 10px inner bezel. Enters with `motion`: from `y: 40, scale: .96, opacity: 0` to rest (320ms `--ease-out`); exits reverse. Inside, top to bottom:
 1. Status bar: tiny mono time (current HH:MM) left, three small SVG bars right. Notch pill centred.
 2. Avatar: 64px circle with serif "L" monogram on `--accent`; when `ringing`, two concentric rings expand & fade (CSS keyframes, 1.6s infinite).
 3. Name: "Linden Clinic" (display font 28px, `--phone-ink`). Sub‑line (`--phone-ink-2`, 13px): `ringing` → "Calling…"; `connected` → timer `mm:ss` (mono); `ended` → "Call ended · mm:ss"; `error` → the error text.
@@ -2059,9 +2059,9 @@ Grid: `grid-template-columns: minmax(0, 1.65fr) minmax(340px, 1fr)`. Right colum
 6. `ConfirmationCard` slides up from the bottom of the transcript area when `lastChange` arrives *during this call* (`lastChange.at` ≥ call start): white card, radius 16px; booked → green check SVG, "Booked", `Dr. Name`, `Wed 25 Nov · 10:30 AM`, mono ID; cancelled → `--danger` "Cancelled" + same details. Auto‑hides after 6s or on next change.
 7. Controls row: **Mute** (56px circle, `rgba(255,255,255,.1)`, mic / mic‑off SVG, label "Mute"/"Unmute" under it, toggles white background when muted) and **End** (56px circle `#e5484d`, handset‑down SVG, label "End"). In `ended` and `error` states show a single "Close" text button (error state also "Retry").
 
-**Transcript.tsx**, **ConfirmationCard.tsx** — presentational; props as described above.
+**Transcript.tsx**, **ConfirmationCard.tsx**, presentational; props as described above.
 
-**App.tsx** — composes: `const data = useClinicData(); const call = useCall();` Pass `call.start` to TopBar; render `PhoneCall` with `call` + `data.lastChange`; panels get `data`. While a call is active, add `aria-live="polite"` region in the phone for new agent lines.
+**App.tsx**, composes: `const data = useClinicData(); const call = useCall();` Pass `call.start` to TopBar; render `PhoneCall` with `call` + `data.lastChange`; panels get `data`. While a call is active, add `aria-live="polite"` region in the phone for new agent lines.
 
 **Footer** (one line, 12px, `--ink-3`): "Mock data · Gemini · ElevenLabs · Pipecat" and a text button "Reset data" → `api.reset()` with `confirm("Reset all demo data?")`.
 
@@ -2085,7 +2085,7 @@ Grid: `grid-template-columns: minmax(0, 1.65fr) minmax(340px, 1fr)`. Right colum
 
 ## 8. Verification protocol (do this right after installing, before writing `bot.py`/`main.py`/`useCall.ts`)
 
-Pipecat evolves quickly; class paths and option names move. **Never guess — read the installed code.**
+Pipecat evolves quickly; class paths and option names move. **Never guess, read the installed code.**
 
 ```bash
 cd server && source .venv/bin/activate
@@ -2123,32 +2123,32 @@ Frontend: after `npm install`, open
 
 Time budget (deadline tomorrow 23:00 IST): Phases 0–4 ≈ 2h, Phase 5 ≈ 2h, Phases 6–7 ≈ 4h, Phase 8 ≈ 2h, Phases 9–10 ≈ 1.5h. If behind schedule, skip Phase 8 items in reverse order of the list.
 
-### Phase 0 — Accounts & keys (the HUMAN does this; the AI must not create accounts)
+### Phase 0, Accounts & keys (the HUMAN does this; the AI must not create accounts)
 1. Google AI Studio → create API key (free tier, no billing needed). Note the newest free "flash" model name.
 2. ElevenLabs → free account → Profile → API keys → create a key with **Speech to Text** and **Text to Speech** permissions enabled. Copy a voice ID from Voices (a default/premade voice works on the free plan).
 3. Put both into `server/.env` (created from `.env.example`). Never paste keys into chat or code.
 4. Note: ElevenLabs free credits are limited (check the usage page). A 2‑minute test call costs roughly 1–2k TTS characters. Budget: ≤6 voice test calls before recording the video.
 
-### Phase 1 — Scaffold
+### Phase 1, Scaffold
 1. In repo root: create `.gitignore` (6.3) **first**, then `git init`.
 2. `cd server && python3.12 -m venv .venv && source .venv/bin/activate && pip install -U pip && pip install -r requirements.txt`
 3. Create all `server/app/*.py` files from Section 6 (bot.py/main.py can wait until Phase 5).
 4. Run Section 8 verification for backend; write findings in `NOTES.md`.
 **Checkpoint:** `python -c "import app.config, app.db"` runs from `server/` without error.
 
-### Phase 2 — Data layer
+### Phase 2, Data layer
 1. `db.py`, `seed.py`, `repository.py`, `timeutil.py`, `phone.py`.
 2. `python -m app.seed --reset` → prints "Seeded."
 3. `sqlite3 data/clinic.db "select count(*) from slots; select count(*) from appointments;"` → slots ~200+, appointments ~25–45.
 **Checkpoint:** `pytest tests/test_phone.py tests/test_timeutil.py tests/test_repository.py` all green.
 
-### Phase 3 — Tools + prompt
+### Phase 3, Tools + prompt
 1. `tools.py`, `events.py`, `prompts.py`.
 2. `python -c "from app.prompts import build_system_prompt; print(build_system_prompt())"` → shows correct today + 7 dates + 6 doctors.
 **Checkpoint:** full `pytest` green.
 
-### Phase 4 — REST + SSE (without bot)
-Temporarily comment out the `/api/offer` route and the bot/pipecat imports in `main.py`, or finish `bot.py` now with the verified imports — either is fine.
+### Phase 4, REST + SSE (without bot)
+Temporarily comment out the `/api/offer` route and the bot/pipecat imports in `main.py`, or finish `bot.py` now with the verified imports, either is fine.
 1. `uvicorn app.main:app --port 7860`
 2. `curl -s localhost:7860/api/health` → `{"ok":true}`
 3. `curl -s localhost:7860/api/doctors | python -m json.tool | head -40` → 7 `days`, 6 doctors with slots.
@@ -2156,7 +2156,7 @@ Temporarily comment out the `/api/offer` route and the bot/pipecat imports in `m
 5. In terminal A: `curl -N localhost:7860/api/events`; in terminal B: `curl -X POST localhost:7860/api/reset` → terminal A prints a `data.reset` event.
 **Checkpoint:** all five pass.
 
-### Phase 5 — Voice bot
+### Phase 5, Voice bot
 1. Write `bot.py` and the `/api/offer` route using verified imports.
 2. Fastest test before the React app exists: if `pipecat-ai-small-webrtc-prebuilt` installed, mount its UI (check its README for the exact mount line; it is typically `from pipecat_ai_small_webrtc_prebuilt.frontend import SmallWebRTCPrebuiltUI` and `app.mount("/prebuilt", SmallWebRTCPrebuiltUI)`) and open `http://localhost:7860/prebuilt`. Otherwise, go straight to Phase 6 then come back.
 3. Talk: "Is Doctor Rao free tomorrow?" → server log shows `tool check_doctor_availability args=...` and you hear options.
@@ -2169,28 +2169,28 @@ Troubleshooting:
 * Bot talks over itself or never stops → make sure `transport.output()` comes **before** `aggregators.assistant()`.
 * Agent books without reading the number back → tool returns `PHONE_NOT_CONFIRMED` (by design); tighten prompt wording only if it happens repeatedly.
 
-### Phase 6 — Frontend data views
+### Phase 6, Frontend data views
 1. Vite scaffold (7.1), tokens, types, api, format, `useClinicData`, `TopBar`, `DoctorsPanel`, `AppointmentsPanel`, `ActivityLog`, footer.
 2. `cd web && npm run dev` with the server running.
 **Checkpoint:** dashboard shows doctors/slots/appointments; clicking "Reset data" refreshes everything via SSE; `npx tsc --noEmit` has no errors.
 
-### Phase 7 — Call integration
+### Phase 7, Call integration
 1. Verify frontend client APIs (Section 8), then `main.tsx` provider, `sounds.ts`, `useCall`, `useCallTimer`, `PhoneCall`, `Transcript`, `Waveform`, `ConfirmationCard`.
 **Checkpoint:** click Try call → ring → connected → speak → transcript appears in the phone → book → dashboard row flashes + card in phone → End → "Call ended" → overlay closes. Then do a cancellation with `9876543210`.
 
-### Phase 8 — Polish (bonus, in priority order)
+### Phase 8, Polish (bonus, in priority order)
 1. Row/slot flash + scroll into view. 2. Confirmation card. 3. Waveform. 4. Mobile layout. 5. Reduced‑motion. 6. Optional: agent says "One moment" while a tool runs (only if Pipecat exposes `on_function_calls_started` on the LLM service; push a `TTSSpeakFrame("One moment.")`; skip if unsure).
 
-### Phase 9 — Docs & repo
-1. `README.md` (template below), `PIPELINE.md` (draft below — the user must rewrite it in their own words), pin versions in `requirements.txt`, `NOTES.md` short.
+### Phase 9, Docs & repo
+1. `README.md` (template below), `PIPELINE.md` (draft below, the user must rewrite it in their own words), pin versions in `requirements.txt`, `NOTES.md` short.
 2. `git status` → confirm **no `.env`, no `.db`, no `node_modules`**. `git grep -n "sk_\|AIza"` must return nothing.
 3. Commit in logical steps (data layer, tools, bot, frontend, docs). Push to a new GitHub repo **only when the user says so**.
 
-### Phase 10 — Final QA (run these conversations; all must succeed)
+### Phase 10, Final QA (run these conversations; all must succeed)
 * **Q1 Book:** "I'd like to see a skin doctor." → options → pick one → name → number → read‑back → "yes" → booked → visible on dashboard.
 * **Q2 Wrong number correction:** give number, on read‑back say "No, the last digit is 5" → agent re-reads corrected number → books.
 * **Q3 Cancel:** "Cancel my appointment" → 98765 43210 → read‑back → agent names the Dr. Malhotra appointment → "yes" → cancelled, row strikes through.
-* **Q4 All three in one call:** check availability, book, then cancel that same booking — in one call.
+* **Q4 All three in one call:** check availability, book, then cancel that same booking, in one call.
 * **Q5 Unknown doctor:** "Doctor Kumar" → agent says not found and lists who is available.
 * **Q6 Interruption:** talk while the agent is speaking → it stops and listens.
 * **Q7 Sunday / past date:** ask for a Sunday → agent offers next available.
@@ -2201,7 +2201,7 @@ Troubleshooting:
 ## 10. README.md template (fill in; keep it short)
 
 ````markdown
-# Linden — Voice appointment desk
+# Linden, Voice appointment desk
 
 Voice agent that checks doctor availability, books and cancels appointments, identifying callers only by the phone number they say. Dashboard shows doctors, slots, appointments, live transcript and agent activity.
 
@@ -2236,7 +2236,7 @@ Reset demo data: `python -m app.seed --reset` (or "Reset data" in the footer). D
 
 ## 11. Submission material
 
-### 11.1 `PIPELINE.md` draft (user must rewrite in their own words — interviewers check this)
+### 11.1 `PIPELINE.md` draft (user must rewrite in their own words, interviewers check this)
 
 > The browser connects to a Python server over WebRTC using Pipecat's peer‑to‑peer transport. Incoming audio goes through Silero VAD, which decides when I've stopped talking; that segment goes to ElevenLabs Scribe for transcription. The text is added to the conversation context and sent to Gemini 2.5 Flash, which has three tools: check availability, book and cancel. Tools run against a SQLite database of mock doctors and 30‑minute slots. Booking and cancelling require the phone number plus a `phone_confirmed` flag, so the model has to read the number back and get a yes first; the code refuses otherwise. Gemini's reply goes to ElevenLabs TTS and streams back to the browser. Separately, every tool call publishes an event on a Server‑Sent Events stream, which is how the dashboard updates and highlights rows in real time.
 
@@ -2264,14 +2264,14 @@ GitHub link + video + pipeline description in the Google Form from the PDF, befo
 7. Using `%-d` in `strftime`, hardcoding today's date, or doing date arithmetic in the LLM (the prompt gives the date table).
 8. Markdown, emoji, bullet lists in agent replies (TTS reads them aloud).
 9. Creating `PipecatClient` inside a component; opening multiple `EventSource`s.
-10. Making voice calls to debug logic — use pytest.
+10. Making voice calls to debug logic, use pytest.
 11. Upgrading packages mid‑build; mixing versions of `@pipecat-ai/*` packages (keep them on matching major versions).
 12. Adding login, OTP or caller‑ID identification (explicitly not allowed).
 13. Generic AI look: gradients, glass, emoji, taglines, hero sections, icon packs.
 14. Running `uvicorn --reload` while testing calls.
 15. Claiming something works without running its checkpoint.
 
-## 13. Interview prep (for the human — the AI should make sure the code makes these answers true)
+## 13. Interview prep (for the human, the AI should make sure the code makes these answers true)
 
 * **Why SmallWebRTC?** Free, peer‑to‑peer, no third‑party room service; fine for a local demo. In production you'd use Daily/LiveKit/Twilio for NAT traversal, scaling and PSTN.
 * **Why is double booking impossible?** `BEGIN IMMEDIATE` transaction + partial unique index on `appointments(slot_id) WHERE status='booked'`.

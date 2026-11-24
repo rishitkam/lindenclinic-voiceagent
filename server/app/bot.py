@@ -30,6 +30,24 @@ from .prompts import build_system_prompt
 from .tools import TOOLS, register_tools
 
 
+def make_llm():
+    """LLM_PROVIDER=gemini (free tier, default) or openai (paid, gpt-4.1-mini by default)."""
+    provider = env("LLM_PROVIDER", "gemini").lower()
+    if provider == "openai":
+        from pipecat.services.openai.llm import OpenAILLMService
+
+        model = env("OPENAI_MODEL", "gpt-4.1-mini")
+        logger.info(f"LLM: OpenAI {model}")
+        return OpenAILLMService(
+            api_key=require_env("OPENAI_API_KEY"),
+            # Short spoken replies: cap output so a runaway answer can't burn credit.
+            settings=OpenAILLMService.Settings(model=model, max_completion_tokens=300),
+        )
+    model = env("GEMINI_MODEL", "gemini-2.5-flash")
+    logger.info(f"LLM: Gemini {model}")
+    return GoogleLLMService(api_key=require_env("GOOGLE_API_KEY"), settings=GoogleLLMService.Settings(model=model))
+
+
 async def run_bot(webrtc_connection) -> None:
     async with aiohttp.ClientSession() as http:
         transport = SmallWebRTCTransport(
@@ -49,10 +67,7 @@ async def run_bot(webrtc_connection) -> None:
                 model=env("ELEVENLABS_TTS_MODEL", "eleven_flash_v2_5"),
             ),
         )
-        llm = GoogleLLMService(
-            api_key=require_env("GOOGLE_API_KEY"),
-            settings=GoogleLLMService.Settings(model=env("GEMINI_MODEL", "gemini-2.5-flash")),
-        )
+        llm = make_llm()
         register_tools(llm)
 
         context = LLMContext(messages=[{"role": "system", "content": build_system_prompt()}], tools=TOOLS)

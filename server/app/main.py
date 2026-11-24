@@ -3,7 +3,7 @@ import asyncio
 import json
 from contextlib import asynccontextmanager
 
-from fastapi import BackgroundTasks, FastAPI, Request
+from fastapi import BackgroundTasks, FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 from pipecat.transports.smallwebrtc.connection import IceServer
@@ -16,6 +16,7 @@ from pipecat.transports.smallwebrtc.request_handler import (
 
 from . import events
 from . import repository as repo
+from .config import missing_keys
 from .bot import run_bot
 from .db import init_schema
 from .seed import ensure_future_slots, has_doctors, seed_all
@@ -44,7 +45,7 @@ app.add_middleware(
 
 @app.get("/api/health")
 async def health():
-    return {"ok": True}
+    return {"ok": True, "missingKeys": missing_keys()}
 
 
 @app.get("/api/doctors")
@@ -90,6 +91,8 @@ async def stream_events(request: Request):
 @app.post("/api/offer")
 async def offer(body: dict, background_tasks: BackgroundTasks):
     """Browser sends an SDP offer; we answer and start a bot for the new connection."""
+    if missing := missing_keys():
+        raise HTTPException(503, f"Missing in server/.env: {', '.join(missing)}")
 
     async def start_bot(connection):
         background_tasks.add_task(run_bot, connection)

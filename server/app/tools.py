@@ -146,7 +146,7 @@ HANDLERS = {
 }
 
 
-# ---------------- Pipecat glue (REFERENCE — VERIFY imports, see Section 8) ----------------
+# ---------------- Pipecat glue (imports checked against pipecat 1.17) ----------------
 from pipecat.adapters.llm.schemas.function_schema import FunctionSchema  # noqa: E402
 from pipecat.adapters.llm.schemas.tools_schema import ToolsSchema  # noqa: E402
 

@@ -1,8 +1,8 @@
-# Linden — Voice appointment desk
+# Linden: voice appointment desk
 
 Voice agent that checks doctor availability, books and cancels appointments, identifying callers only by the phone number they say. Dashboard shows doctors, slots, appointments, live transcript and agent activity.
 
-**LLM:** Google Gemini (`gemini-2.5-flash`, free tier) · **STT/TTS:** ElevenLabs (Scribe / Flash v2.5) · **Voice framework:** Pipecat (SmallWebRTC transport, Silero VAD) · **Data:** SQLite mock data
+**LLM:** OpenAI `gpt-4.1-mini` (or Google Gemini `gemini-2.5-flash` on the free tier; set `LLM_PROVIDER` in `server/.env`) · **STT/TTS:** ElevenLabs (Scribe / Flash v2.5) · **Voice framework:** Pipecat (SmallWebRTC transport, Silero VAD) · **Data:** SQLite mock data
 
 ## Run locally
 Requirements: Python 3.12, Node 20+, a Gemini API key, an ElevenLabs API key (STT + TTS permissions).

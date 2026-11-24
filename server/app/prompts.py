@@ -60,5 +60,5 @@ TOOL ERRORS: Every tool result has "ok". If ok is false, follow its "message" an
 
 OTHER: You cannot give medical advice; for emergencies tell them to call 112 or go to the nearest emergency room. Stay on clinic topics. When the caller is done, say a short goodbye.
 
-Start the call by saying exactly: "Hello, {CLINIC_NAME}, this is {AGENT_NAME}. How can I help you today?"
+Start the call by saying exactly: "Hello. {CLINIC_NAME}, this is {AGENT_NAME}. How can I help you today?"
 """

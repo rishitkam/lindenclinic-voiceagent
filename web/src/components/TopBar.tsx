@@ -1,4 +1,5 @@
 import { PhoneIcon } from "./Icons";
+import { Logo } from "./Logo";
 
 interface Props {
   online: boolean;
@@ -12,9 +13,7 @@ export function TopBar({ online, callActive, onCall }: Props) {
     <header className="topbar">
       <div className="topbar-inner">
         <div className="brand">
-          <span className="brand-mark" aria-hidden>
-            L
-          </span>
+          <Logo size={28} />
           <span className="wordmark">Linden</span>
           <span className="brand-sub">Clinic desk</span>
         </div>

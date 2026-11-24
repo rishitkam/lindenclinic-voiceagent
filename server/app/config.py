@@ -25,3 +25,10 @@ def require_env(name: str) -> str:
 
 def env(name: str, default: str) -> str:
     return os.getenv(name, default).strip() or default
+
+
+def missing_keys() -> list[str]:
+    """Env vars a voice call needs but that are empty, so the UI can say exactly what to fill in."""
+    llm_key = "OPENAI_API_KEY" if env("LLM_PROVIDER", "gemini").lower() == "openai" else "GOOGLE_API_KEY"
+    needed = [llm_key, "ELEVENLABS_API_KEY", "ELEVENLABS_VOICE_ID"]
+    return [name for name in needed if not os.getenv(name, "").strip()]

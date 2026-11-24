@@ -1,4 +1,6 @@
-# Pipeline (draft — rewrite this in your own words before submitting)
+# Pipeline
+
+> Draft. Rewrite this in your own words before submitting.
 
 The browser connects to a Python server over WebRTC using Pipecat's peer-to-peer SmallWebRTC transport, so no third-party room service is needed. Incoming audio goes through Silero VAD, which decides when the caller has stopped talking; that segment is sent to ElevenLabs Scribe for transcription. The text is added to the conversation context and sent to Gemini 2.5 Flash, which has three tools: check availability, book and cancel. The tools run against a SQLite database of mock doctors and 30-minute slots. Booking and cancelling need the phone number plus a `phone_confirmed` flag, so the model has to read the number back and get a yes first; the code refuses otherwise. Gemini's reply goes to ElevenLabs TTS (Flash v2.5) and streams back to the browser.
 

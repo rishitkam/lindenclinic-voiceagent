@@ -10,4 +10,5 @@ export const api = {
   doctors: () => get<DoctorsResponse>("/api/doctors"),
   appointments: () => get<Appointment[]>("/api/appointments"),
   reset: () => fetch("/api/reset", { method: "POST" }),
+  health: () => get<{ ok: boolean; missingKeys: string[] }>("/api/health"),
 };

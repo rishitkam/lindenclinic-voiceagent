@@ -130,7 +130,7 @@ h2 {
 }
 
 /* =========================================================
-   Top bar — translucent material, content scrolls under it
+   Top bar: translucent material, content scrolls under it
    ========================================================= */
 .topbar {
   position: sticky;
@@ -222,7 +222,7 @@ h2 {
 }
 
 /* =========================================================
-   Hero — big type, big numbers
+   Hero: big type, big numbers
    ========================================================= */
 .hero {
   padding-top: 64px;
@@ -253,7 +253,7 @@ h2 {
 .hero-grid {
   margin-top: 44px;
   display: grid;
-  grid-template-columns: 1.35fr repeat(3, 1fr);
+  grid-template-columns: 2.1fr repeat(3, 1fr);
   gap: 16px;
 }
 .stat,
@@ -370,7 +370,7 @@ h2 {
   padding: 3px;
   gap: 2px;
   border-radius: 12px;
-  background: var(--fill);
+  background: #e8e8ed;
   overflow-x: auto;
   scrollbar-width: none;
 }
@@ -527,7 +527,7 @@ h2 {
 }
 
 /* =========================================================
-   Appointments — inset grouped list
+   Appointments: inset grouped list
    ========================================================= */
 .toggle {
   display: flex;
@@ -725,7 +725,7 @@ h2 {
 }
 
 /* =========================================================
-   Phone — dark glass device
+   Phone: dark glass device
    ========================================================= */
 .phone-layer {
   position: fixed;
@@ -1121,4 +1121,285 @@ h2 {
   .doctor-card {
     box-shadow: 0 0 0 1px var(--line-strong);
   }
+}
+
+/* =========================================================
+   Side-margin crowds: fill the blank gutters at the bottom
+   ========================================================= */
+.gutter-crowd {
+  position: fixed;
+  bottom: 0;
+  z-index: 0;
+  height: 340px;
+  /* The gutter, plus the column's 32px padding, plus 120px tucked under the cards,
+     so people walk out from behind the cards instead of popping out of thin air. */
+  width: calc((100vw - 1280px) / 2 + 32px + 120px);
+  pointer-events: none;
+  /* fade toward the content and the top so it sits quietly behind the page */
+  mask-image: linear-gradient(to top, #000 70%, transparent);
+  -webkit-mask-image: linear-gradient(to top, #000 70%, transparent);
+}
+.gutter-crowd.is-left {
+  left: 0;
+}
+.gutter-crowd.is-right {
+  right: 0;
+}
+.crowd-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.hero,
+.grid,
+.footer {
+  position: relative;
+  z-index: 1;
+}
+/* Only show when each gutter is wide enough for a few people. */
+@media (max-width: 1640px) {
+  .gutter-crowd {
+    display: none;
+  }
+}
+.footer a {
+  color: var(--ink-2);
+  text-decoration: none;
+}
+.footer a:hover {
+  text-decoration: underline;
+}
+
+/* =========================================================
+   Page background: animated gradient dots
+   ========================================================= */
+.page-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+.page-bg-dots {
+  position: absolute;
+  inset: 0;
+  opacity: 0.55;
+}
+/* Calm the centre: dots stay vivid in the margins and fade out behind the content column,
+   so they never run through text that sits directly on the page. */
+.page-bg {
+  -webkit-mask-image: linear-gradient(to right, #000 0, rgba(0, 0, 0, 0.12) 22%, rgba(0, 0, 0, 0.12) 78%, #000 100%);
+  mask-image: linear-gradient(to right, #000 0, rgba(0, 0, 0, 0.12) 22%, rgba(0, 0, 0, 0.12) 78%, #000 100%);
+}
+/* keep the topbar above the background layer */
+.topbar {
+  z-index: 20;
+}
+
+/* longer error messages in the phone wrap nicely */
+.phone.is-error .caller-sub {
+  max-width: 260px;
+  line-height: 1.35;
+}
+
+/* =========================================================
+   Call card: live effects + hanging robot
+   ========================================================= */
+.call-card {
+  min-height: 196px;
+  padding: 24px 28px;
+  background-size: 160% 160%;
+  animation: call-glow 8s ease-in-out infinite;
+}
+@keyframes call-glow {
+  50% {
+    background-position: 100% 60%;
+  }
+}
+.call-card-top,
+.call-card-title,
+.call-card-sub {
+  position: relative;
+  z-index: 2;
+}
+.call-card-title {
+  font-size: 36px;
+}
+/* light sweeping across the card every few seconds */
+.call-sheen {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: linear-gradient(105deg, transparent 35%, rgba(255, 255, 255, 0.22) 50%, transparent 65%);
+  transform: translateX(-120%);
+  animation: sheen 5s ease-in-out infinite;
+}
+@keyframes sheen {
+  0%,
+  55% {
+    transform: translateX(-120%);
+  }
+  85%,
+  100% {
+    transform: translateX(120%);
+  }
+}
+.call-card-btn {
+  z-index: 3;
+  width: 64px;
+  height: 64px;
+  right: 24px;
+  bottom: 24px;
+}
+.call-card-btn svg {
+  position: relative;
+  animation: ring-shake 4s ease-in-out infinite;
+}
+@keyframes ring-shake {
+  0%,
+  70%,
+  100% {
+    transform: rotate(0);
+  }
+  74%,
+  82%,
+  90% {
+    transform: rotate(-14deg);
+  }
+  78%,
+  86% {
+    transform: rotate(14deg);
+  }
+}
+.call-pulse {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.7);
+  animation: call-pulse 2.4s ease-out infinite;
+}
+.call-pulse.p2 {
+  animation-delay: 1.2s;
+}
+@keyframes call-pulse {
+  from {
+    transform: scale(1);
+    opacity: 0.9;
+  }
+  to {
+    transform: scale(1.9);
+    opacity: 0;
+  }
+}
+
+/* the robot: track (strolls across) > mover > swing (pendulum) > svg */
+.robot-track {
+  position: absolute;
+  z-index: 2;
+  top: 0;
+  left: 36%;
+  right: 104px;
+  height: 0;
+  pointer-events: none;
+}
+.robot-mover {
+  position: absolute;
+  top: 0;
+  left: 0;
+  animation: robot-stroll 11s ease-in-out infinite alternate;
+}
+@keyframes robot-stroll {
+  0% {
+    left: 0%;
+  }
+  100% {
+    left: 100%;
+  }
+}
+.robot-swing {
+  display: block;
+  margin-left: -34px; /* centre the 68px robot on its string */
+  transform-origin: 34px 0;
+  animation: robot-swing 2.6s ease-in-out infinite alternate;
+}
+@keyframes robot-swing {
+  from {
+    transform: rotate(-7deg);
+  }
+  to {
+    transform: rotate(7deg);
+  }
+}
+.robot {
+  display: block;
+  overflow: visible;
+  filter: drop-shadow(0 6px 8px rgba(0, 20, 60, 0.35));
+}
+.robot-eyes {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: robot-blink 4.2s infinite;
+}
+@keyframes robot-blink {
+  0%,
+  92%,
+  100% {
+    transform: scaleY(1);
+  }
+  95% {
+    transform: scaleY(0.1);
+  }
+}
+.robot-light {
+  animation: breathe 1.6s ease-in-out infinite;
+}
+.robot-arm {
+  transform-box: view-box;
+  transform-origin: 45px 63px; /* the shoulder */
+  animation: robot-wave 5s ease-in-out infinite;
+}
+@keyframes robot-wave {
+  0%,
+  60%,
+  100% {
+    transform: rotate(0);
+  }
+  66%,
+  78% {
+    transform: rotate(-22deg);
+  }
+  72%,
+  84% {
+    transform: rotate(12deg);
+  }
+}
+.call-card:hover:not(:disabled) .robot-arm {
+  animation-duration: 1.2s; /* waves faster when you point at the card */
+}
+@media (max-width: 760px) {
+  .robot-track {
+    left: 52%;
+    right: 96px;
+  }
+  .call-card-title {
+    font-size: 30px;
+  }
+}
+
+/* During a call the card goes still (the robot freezes where it is) so attention stays on the phone. */
+.call-card.is-on-call,
+.call-card.is-on-call *,
+.call-card.is-on-call *::before,
+.call-card.is-on-call *::after {
+  animation-play-state: paused !important;
+}
+.call-card.is-on-call .call-pulse,
+.call-card.is-on-call .call-sheen {
+  opacity: 0;
+}
+
+.logo {
+  display: block;
+  filter: drop-shadow(0 1px 2px rgba(0, 60, 160, 0.25));
 }

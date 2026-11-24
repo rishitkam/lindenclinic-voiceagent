@@ -1,6 +1,7 @@
 import { motion } from "motion/react";
 import type { Appointment, DoctorsResponse } from "../types";
 import { PhoneIcon } from "./Icons";
+import { Robot } from "./Robot";
 
 interface Props {
   doctors: DoctorsResponse | null;
@@ -17,7 +18,7 @@ export function Hero({ doctors, appointments, online, callActive, onCall }: Prop
   const allSlots = doctors?.doctors.flatMap((d) => d.slots) ?? [];
   const open = allSlots.filter((s) => s.status === "available").length;
   const upcoming = appointments.filter((a) => a.status === "booked").length;
-  // "In today" — or the next day with open slots once today's clinic is over.
+  // Today, or the next day with open slots once today's clinic is over.
   const focusDay =
     doctors?.days.find((d) => allSlots.some((s) => s.date === d && s.status === "available")) ?? today;
   const inFocus = doctors?.doctors.filter((d) => d.slots.some((s) => s.date === focusDay && s.status !== "past")).length ?? 0;
@@ -47,12 +48,12 @@ export function Hero({ doctors, appointments, online, callActive, onCall }: Prop
           <br />
           <span className="h1-soft">answered by voice.</span>
         </h1>
-        <p className="lede">Asha checks availability, books and cancels — identifying callers by the number they say.</p>
+        <p className="lede">Asha checks availability, books and cancels appointments. Callers are identified by the phone number they say.</p>
       </motion.div>
 
       <div className="hero-grid">
         <motion.button
-          className="call-card"
+          className={`call-card ${callActive ? "is-on-call" : ""}`}
           onClick={onCall}
           disabled={callActive || !online}
           initial={{ opacity: 0, y: 16 }}
@@ -60,6 +61,8 @@ export function Hero({ doctors, appointments, online, callActive, onCall }: Prop
           transition={{ ...spring, delay: 0.05 }}
           whileTap={{ scale: 0.98 }}
         >
+          <span className="call-sheen" aria-hidden />
+          <Robot />
           <span className="call-card-top">
             <span className={`live ${online ? "is-on" : ""}`}>
               <span className="live-dot" />
@@ -67,9 +70,11 @@ export function Hero({ doctors, appointments, online, callActive, onCall }: Prop
             </span>
           </span>
           <span className="call-card-title">Try a call</span>
-          <span className="call-card-sub">Talk to Asha from your browser.</span>
+          <span className="call-card-sub">Talk to Asha from your browser. No sign-up.</span>
           <span className="call-card-btn" aria-hidden>
-            <PhoneIcon size={22} />
+            <i className="call-pulse" />
+            <i className="call-pulse p2" />
+            <PhoneIcon size={26} />
           </span>
         </motion.button>
 

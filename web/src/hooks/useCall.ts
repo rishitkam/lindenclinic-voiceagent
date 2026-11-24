@@ -1,6 +1,7 @@
 import { useCallback, useRef, useState } from "react";
 import { BotOutputType, RTVIEvent, type BotOutputData, type TranscriptData } from "@pipecat-ai/client-js";
 import { usePipecatClient, useRTVIClientEvent } from "@pipecat-ai/client-react";
+import { api } from "../lib/api";
 import { playConnect, playEnd, startRing, stopRing } from "../lib/sounds";
 import type { CallStatus, TranscriptLine } from "../types";
 
@@ -120,12 +121,24 @@ export function useCall() {
       void client.disconnect().catch(() => undefined);
     }, NO_ANSWER_MS);
     try {
+      // Fail fast with a clear message if the server isn't configured, instead of ringing forever.
+      const health = await api.health().catch(() => null);
+      if (!health) throw new Error("server-down");
+      if (health.missingKeys.length) throw new Error(`keys:${health.missingKeys.join(", ")}`);
       await client.initDevices();
       await client.connect({ webrtcRequestParams: { endpoint: "/api/offer" } });
     } catch (e) {
       stopRing();
       const message = e instanceof Error ? e.message : String(e);
-      setError(/permission|denied|notallowed/i.test(message) ? "Microphone access is blocked." : "Could not reach the agent.");
+      setError(
+        message.startsWith("keys:")
+          ? `Server is missing ${message.slice(5)} in server/.env.`
+          : message === "server-down"
+            ? "The server isn't running on port 7860."
+            : /permission|denied|notallowed/i.test(message)
+              ? "Microphone access is blocked. Allow it in the address bar."
+              : "Could not reach the agent. Check the server terminal.",
+      );
       setStatus("error");
       try {
         await client.disconnect();
