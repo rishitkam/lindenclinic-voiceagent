@@ -8,10 +8,10 @@ _WORDS = {
 _REPEAT = {"double": 2, "triple": 3}
 
 
-def normalize_phone(raw) -> str | None:
-    """Return a 10-digit string, or None if the input is not a valid number."""
+def extract_digits(raw) -> str:
+    """Every digit the caller said, in order (handles "nine", "oh", "double 9", "+91 ...")."""
     if raw is None:
-        return None
+        return ""
     tokens = re.findall(r"[a-z]+|\d", str(raw).lower())
     digits: list[str] = []
     repeat = 1
@@ -23,7 +23,12 @@ def normalize_phone(raw) -> str | None:
         if digit is not None:
             digits.append(digit * repeat)
         repeat = 1
-    number = "".join(digits)
+    return "".join(digits)
+
+
+def normalize_phone(raw) -> str | None:
+    """Return a 10-digit string, or None if the input is not a valid number."""
+    number = extract_digits(raw)
     if len(number) == 12 and number.startswith("91"):
         number = number[2:]
     elif len(number) == 11 and number.startswith("0"):

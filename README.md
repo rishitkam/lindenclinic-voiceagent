@@ -2,7 +2,7 @@
 
 Voice agent that checks doctor availability, books and cancels appointments, identifying callers only by the phone number they say. Dashboard shows doctors, slots, appointments, live transcript and agent activity.
 
-**LLM:** OpenAI `gpt-4.1-mini` (or Google Gemini `gemini-2.5-flash` on the free tier; set `LLM_PROVIDER` in `server/.env`) · **STT/TTS:** ElevenLabs (Scribe / Flash v2.5) · **Voice framework:** Pipecat (SmallWebRTC transport, Silero VAD) · **Data:** SQLite mock data
+**LLM:** OpenAI `gpt-4.1-mini` (or Google Gemini `gemini-2.5-flash` on the free tier; set `LLM_PROVIDER` in `server/.env`) · **STT/TTS:** ElevenLabs (Scribe v2 realtime / Flash v2.5) · **Voice framework:** Pipecat (SmallWebRTC transport, Silero VAD) · **Data:** SQLite mock data
 
 ## Run locally
 Requirements: Python 3.12, Node 20+, an OpenAI API key (or a free Gemini key), an ElevenLabs API key with **Speech to Text** and **Text to Speech** permissions.
@@ -23,6 +23,8 @@ cd web
 npm install
 npm run dev            # open http://localhost:5173
 ```
+Optional `.env` settings: `STT_MODE=segmented` (upload each utterance instead of streaming), `GEMINI_MODEL` / `OPENAI_MODEL`.
+
 Reset demo data: `python -m app.seed --reset` (or "Reset data" in the footer). Demo number with an existing booking: 98765 43210.
 
 ## Features
@@ -31,10 +33,10 @@ Reset demo data: `python -m app.seed --reset` (or "Reset data" in the footer). D
 - Dashboard: doctors with live slots per day, appointments, agent activity log, all updated in real time
 - Phone-style call screen: ringing, connected, ended; caller name, timer, mute, end call, live transcript, voice waveform, booking confirmation card, ring and end-call sounds
 - Rows and slots highlight when the agent books or cancels; mobile layout; reduced-motion support
-- Silero VAD for turn detection and barge-in
+- Silero VAD + Pipecat Smart Turn for turn detection and barge-in; streaming speech-to-text for faster replies
 
 ## How it works
-Browser ⇄ WebRTC ⇄ Pipecat pipeline (Silero VAD → ElevenLabs STT → OpenAI gpt-4.1-mini with three tools → ElevenLabs TTS). Tools read and write SQLite; each tool call also goes out on a Server-Sent Events stream that the dashboard listens to. See [PIPELINE.md](PIPELINE.md).
+Browser ⇄ WebRTC ⇄ Pipecat pipeline (ElevenLabs realtime STT with Silero VAD and Smart Turn → OpenAI gpt-4.1-mini with three tools → ElevenLabs TTS). Tools read and write SQLite; each tool call also goes out on a Server-Sent Events stream that the dashboard listens to. See [PIPELINE.md](PIPELINE.md).
 
 The caller is identified only by the phone number they say. `book_appointment` and `cancel_appointment` refuse to run unless `phone_confirmed` is true, so the agent must read the number back first. Cancelling is two steps: the first call lists the caller's appointments, the second (with `appointment_id`) cancels after the caller confirms.
 

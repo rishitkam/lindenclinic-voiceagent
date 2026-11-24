@@ -5,7 +5,7 @@ from loguru import logger
 
 from . import events
 from . import repository as repo
-from .phone import normalize_phone, spoken_phone
+from .phone import extract_digits, normalize_phone, spoken_phone
 from .repository import ClinicError
 from .timeutil import DateParseError, now_local, parse_date_arg, spoken_date
 
@@ -31,11 +31,23 @@ def _as_int(value) -> int | None:
 def _checked_phone(args: dict) -> tuple[str | None, dict | None]:
     phone = normalize_phone(args.get("phone"))
     if not phone:
-        return None, _error("INVALID_PHONE", "That is not a 10-digit phone number. Ask the caller to say it again slowly.")
+        heard = extract_digits(args.get("phone"))
+        hint = (
+            "Ask for the rest of the number, then call again with all the digits joined together."
+            if len(heard) < 10
+            else "That is too many digits. Ask the caller to say the number again slowly."
+        )
+        return None, _error(
+            "INVALID_PHONE",
+            f"Heard {len(heard)} digits ({' '.join(heard) or 'none'}), but a mobile number has 10. {hint}",
+            digits_heard=len(heard),
+        )
     if not _as_bool(args.get("phone_confirmed")):
         return None, _error(
             "PHONE_NOT_CONFIRMED",
-            f"Read the number back first: '{spoken_phone(phone)}'. Only call again with phone_confirmed=true after the caller says yes.",
+            f"Say exactly this to the caller: '{spoken_phone(phone)}. Is that right?' "
+            "If they say yes, call again with phone_confirmed=true.",
+            read_back=spoken_phone(phone),
         )
     return phone, None
 

@@ -35,3 +35,13 @@ def test_cancel_two_step():
     assert second["ok"] and second["_events"][0]["type"] == "appointment.cancelled"
     third = cancel_appointment({"phone": "9876543210", "phone_confirmed": True})
     assert third["error"] == "NO_APPOINTMENT"
+
+
+def test_incomplete_number_reports_digits_heard():
+    r = book_appointment({"slot_id": 1, "phone": "999-709-", "phone_confirmed": False})
+    assert r["error"] == "INVALID_PHONE" and r["digits_heard"] == 6
+
+
+def test_split_number_joined_gives_exact_read_back():
+    r = book_appointment({"slot_id": 1, "phone": "999-709- 4849.", "phone_confirmed": False})
+    assert r["error"] == "PHONE_NOT_CONFIRMED" and r["read_back"] == "9 9 9 7 0, 9 4 8 4 9"
