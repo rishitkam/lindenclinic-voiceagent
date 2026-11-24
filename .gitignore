@@ -12,3 +12,7 @@ web/dist/
 .DS_Store
 server/data/*.log
 .agents/
+.claude/
+HANDOFF_PLAN.md
+*.webp
+!docs/media/*.webp
