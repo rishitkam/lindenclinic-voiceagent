@@ -161,7 +161,7 @@ flowchart LR
 4. The reply is spoken by **ElevenLabs Flash v2.5** and streamed back to the browser.
 5. Every tool call also goes out on a **Server-Sent Events** stream, which is how the dashboard updates and highlights rows live.
 
-More detail in [PIPELINE.md](PIPELINE.md); the reasoning behind each choice is in [NOTES.md](NOTES.md).
+More detail in [pipeline description](pipeline%20description.md); the reasoning behind each choice is in [NOTES.md](NOTES.md).
 
 ---
 
