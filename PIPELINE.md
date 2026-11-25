@@ -1,14 +1,30 @@
-# Pipeline
+# Linden: how the voice pipeline works
 
-> Draft. Rewrite this in your own words before submitting.
+## The flow (Its one call)
 
-The browser connects to a Python server over WebRTC using Pipecat's peer-to-peer SmallWebRTC transport, so no third-party room service is needed. Caller audio is streamed to ElevenLabs Scribe realtime speech-to-text, which transcribes while the caller is still talking. Silero VAD detects speech, and Pipecat's Smart Turn model decides when the caller has actually finished (a 0.5 s pause, so a pause in the middle of a phone number doesn't end the turn). The finished text goes to OpenAI gpt-4.1-mini, which has three tools: check availability, book and cancel. The tools run against a SQLite database of mock doctors and 30-minute slots.
+```mermaid
+flowchart TD
+    A["You speak in the browser"]
+    B["ElevenLabs transcribes it live, while you're still talking"]
+    C["GPT-4.1 mini / Gemini reads it and decides what to do"]
+    D["Tools hit a SQLite database of mock doctors and slots<br/>check_doctor_availability<br/>book_appointment<br/>cancel_appointment"]
+    E["ElevenLabs speaks the reply back to you"]
+    F["The dashboard updates live (rows flash, slot turns booked)"]
 
-The phone number is the only identity. The model never counts digits itself: it passes what the caller said to the tool, the code extracts the digits (handling "double nine", "+91", numbers split across turns) and returns the exact read-back. Booking or cancelling only goes through once the tool is called again with `phone_confirmed` true, after the caller says yes; the code refuses otherwise. While a tool runs, a short "One moment." is spoken so there is no dead air. The model's reply goes to ElevenLabs TTS (Flash v2.5) and streams back to the browser.
-
-Separately, every tool call publishes an event on a Server-Sent Events stream (`/api/events`). That is how the dashboard refreshes and highlights rows in real time, and how the phone shows the booking card.
-
+    A -- "audio over WebRTC (Pipecat, peer to peer)" --> B
+    B -- "Silero VAD + Smart Turn decide you've actually finished" --> C
+    C -- "if it needs the schedule, it calls a tool" --> D
+    D --> E
+    E -- "at the same time" --> F
 ```
-mic ─► WebRTC ─► ElevenLabs realtime STT + Silero VAD / Smart Turn ─► gpt-4.1-mini (+ tools ─► SQLite) ─► ElevenLabs TTS ─► WebRTC ─► speaker
-                                                        └─► SSE events ─► dashboard
-```
+
+## The bits I'm proud of
+
+- **Your phone number is your ID.** No login. Asha reads it back digit by digit and only books after you say yes. The code enforces this too, not just the prompt.
+- **The model never counts digits.** It got a 10 digit number wrong once, so now the code extracts the digits and hands back the exact read-back.
+- **No double bookings.** A database rule allows only one active booking per slot.
+- **No awkward silence.** While it looks something up, it says "One moment."
+
+## What I'd do next
+
+Real phone calls (Twilio), Multilingual support, SMS reminders, and Postgres instead of SQLite.
